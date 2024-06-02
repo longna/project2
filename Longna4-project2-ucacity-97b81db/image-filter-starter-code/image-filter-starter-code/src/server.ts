@@ -1,15 +1,14 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import bodyParser from "body-parser";
+import express from "express";
+import { deleteLocalFiles, filterImageFromURL } from "./util/util";
 
 (async () => {
-
   // Init the Express application
   const app = express();
 
   // Set the network port
   const port = process.env.PORT || 8082;
-  
+
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
@@ -30,42 +29,43 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
-  
+
   // Root Endpoint
   // Displays a simple message to the user
-  app.get("/filteredimage", async (req,res ) => {
+  app.get("/", async (req, res) => {
+    res.send("OK");
+  });
 
+  app.get("/filteredimage", async (req, res) => {
     let imageUrl = req.query.image_url as string;
     console.log(req.query);
-    if ( !imageUrl ) {
+    if (!imageUrl) {
       return res.status(400).send(`URL is required`);
     }
-      let fileName = null;
+    let fileName = null;
 
-      filterImageFromURL(imageUrl)
-          .then(fileData => {
-              fileName = fileData;
+    filterImageFromURL(imageUrl)
+      .then((fileData) => {
+        fileName = fileData;
 
-              //3. send the resulting file in the response
-              res.sendFile(fileData);
+        //3. send the resulting file in the response
+        res.sendFile(fileData);
 
-              //add file
-              var files: string[] = [];
-              files.push(fileName);
+        //add file
+        var files: string[] = [];
+        files.push(fileName);
 
-              //set timeout
-              setTimeout(() => {
-                  deleteLocalFiles(files);
-              }, 1000);
-
-          })
-          .catch(err => console.log(err));
-  } );
-
+        //set timeout
+        setTimeout(() => {
+          deleteLocalFiles(files);
+        }, 1000);
+      })
+      .catch((err) => console.log(err));
+  });
 
   // Start the Server
-  app.listen( port, () => {
-      console.log( `server running http://localhost:${ port }` );
-      console.log( `press CTRL+C to stop server` );
-  } );
+  app.listen(port, () => {
+    console.log(`server running http://localhost:${port}`);
+    console.log(`press CTRL+C to stop server`);
+  });
 })();
